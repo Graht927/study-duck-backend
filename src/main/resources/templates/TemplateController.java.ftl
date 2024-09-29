@@ -66,7 +66,7 @@ public class ${upperDataKey}Controller {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         // 返回新写入的数据 id
         long new${upperDataKey}Id = ${dataKey}.getId();
-        return ResultUtil.success(new${upperDataKey}Id);
+        return ResultUtil.ok(new${upperDataKey}Id);
     }
 
     /**
@@ -93,7 +93,7 @@ public class ${upperDataKey}Controller {
         // 操作数据库
         boolean result = ${dataKey}Service.removeById(id);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtil.success(true);
+        return ResultUtil.ok(true);
     }
 
     /**
@@ -120,7 +120,7 @@ public class ${upperDataKey}Controller {
         // 操作数据库
         boolean result = ${dataKey}Service.updateById(${dataKey});
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtil.success(true);
+        return ResultUtil.ok(true);
     }
 
     /**
@@ -136,7 +136,7 @@ public class ${upperDataKey}Controller {
         ${upperDataKey} ${dataKey} = ${dataKey}Service.getById(id);
         ThrowUtils.throwIf(${dataKey} == null, ErrorCode.NOT_FOUND_ERROR);
         // 获取封装类
-        return ResultUtil.success(${dataKey}Service.get${upperDataKey}VO(${dataKey}, request));
+        return ResultUtil.ok(${dataKey}Service.get${upperDataKey}VO(${dataKey}, request));
     }
 
     /**
@@ -153,7 +153,7 @@ public class ${upperDataKey}Controller {
         // 查询数据库
         Page<${upperDataKey}> ${dataKey}Page = ${dataKey}Service.page(new Page<>(current, size),
                 ${dataKey}Service.getQueryWrapper(${dataKey}QueryRequest));
-        return ResultUtil.success(${dataKey}Page);
+        return ResultUtil.ok(${dataKey}Page);
     }
 
     /**
@@ -174,7 +174,7 @@ public class ${upperDataKey}Controller {
         Page<${upperDataKey}> ${dataKey}Page = ${dataKey}Service.page(new Page<>(current, size),
                 ${dataKey}Service.getQueryWrapper(${dataKey}QueryRequest));
         // 获取封装类
-        return ResultUtil.success(${dataKey}Service.get${upperDataKey}VOPage(${dataKey}Page, request));
+        return ResultUtil.ok(${dataKey}Service.get${upperDataKey}VOPage(${dataKey}Page, request));
     }
 
     /**
@@ -199,7 +199,7 @@ public class ${upperDataKey}Controller {
         Page<${upperDataKey}> ${dataKey}Page = ${dataKey}Service.page(new Page<>(current, size),
                 ${dataKey}Service.getQueryWrapper(${dataKey}QueryRequest));
         // 获取封装类
-        return ResultUtil.success(${dataKey}Service.get${upperDataKey}VOPage(${dataKey}Page, request));
+        return ResultUtil.ok(${dataKey}Service.get${upperDataKey}VOPage(${dataKey}Page, request));
     }
 
     /**
@@ -231,7 +231,7 @@ public class ${upperDataKey}Controller {
         // 操作数据库
         boolean result = ${dataKey}Service.updateById(${dataKey});
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtil.success(true);
+        return ResultUtil.ok(true);
     }
 
     // endregion
