@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.graht</groupId>
-    <artifactId>FindFriends-backend</artifactId>
+    <artifactId>springboot-init</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>FindFriends-backend</name>
-    <description>FindFriends-backend</description>
+    <name>springboot-init</name>
+    <description>springboot-init</description>
 
     <properties>
         <java.version>1.8</java.version>
