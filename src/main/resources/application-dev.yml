@@ -17,5 +17,6 @@ spring:
         max-active: 20
         min-idle: 4
         max-idle: 10
-    host: localhost
+    host: xxxx
     port: 6379
+    password: xxxx
