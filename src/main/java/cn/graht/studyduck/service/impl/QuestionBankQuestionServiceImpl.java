@@ -4,15 +4,20 @@ import cn.graht.studyduck.commons.ErrorCode;
 import cn.graht.studyduck.constant.CommonConstant;
 import cn.graht.studyduck.exception.ThrowUtils;
 import cn.graht.studyduck.mapper.QuestionBankQuestionMapper;
+import cn.graht.studyduck.model.entity.Question;
+import cn.graht.studyduck.model.entity.QuestionBank;
 import cn.graht.studyduck.model.entity.QuestionBankQuestion;
 import cn.graht.studyduck.model.entity.User;
 import cn.graht.studyduck.model.request.questionbankquestion.QuestionBankQuestionQueryRequest;
 import cn.graht.studyduck.model.vo.QuestionBankQuestionVO;
 import cn.graht.studyduck.model.vo.UserVO;
 import cn.graht.studyduck.service.QuestionBankQuestionService;
+import cn.graht.studyduck.service.QuestionBankService;
+import cn.graht.studyduck.service.QuestionService;
 import cn.graht.studyduck.service.UserService;
 import cn.graht.studyduck.utils.SqlUtils;
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,10 +28,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +42,10 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
     @Resource
     private UserService userService;
+    @Resource
+    private QuestionService questionService;
+    @Resource
+    private QuestionBankService questionBankService;
 
     /**
      * 校验数据
@@ -62,8 +68,18 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         if (StringUtils.isNotBlank(title)) {
             ThrowUtils.throwIf(title.length() > 80, ErrorCode.PARAMS_ERROR, "标题过长");
         }*/
+        //题目和题库必须存在
+        Long questionId = questionbankquestion.getQuestionId();
+        if (questionId != null) {
+            Question question = questionService.getById(questionId);
+            ThrowUtils.throwIf(question == null, ErrorCode.PARAMS_ERROR,"题目不存在");
+        }
+        Long questionBankId = questionbankquestion.getQuestionBankId();
+        if (questionBankId != null) {
+            QuestionBank questionBank = questionBankService.getById(questionBankId);
+            ThrowUtils.throwIf(questionBank == null, ErrorCode.PARAMS_ERROR,"题库不存在");
+        }
     }
-
     /**
      * 获取查询条件
      *

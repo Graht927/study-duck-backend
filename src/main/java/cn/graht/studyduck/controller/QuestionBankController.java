@@ -1,5 +1,9 @@
 package cn.graht.studyduck.controller;
 
+import cn.graht.studyduck.model.entity.Question;
+import cn.graht.studyduck.model.request.question.QuestionQueryRequest;
+import cn.graht.studyduck.service.QuestionBankQuestionService;
+import cn.graht.studyduck.service.QuestionService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.graht.studyduck.annotation.AuthCheck;
 import cn.graht.studyduck.commons.ResultApi;
@@ -24,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 /**
  * 题库接口
@@ -37,6 +42,8 @@ public class QuestionBankController {
 
     @Resource
     private QuestionBankService questionbankService;
+    @Resource
+    private QuestionService questionService;
 
     @Resource
     private UserService userService;
@@ -51,6 +58,7 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Long> addQuestionBank(@RequestBody QuestionBankAddRequest questionbankAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(questionbankAddRequest == null, ErrorCode.PARAMS_ERROR);
         // todo 在此处将实体类和 request 进行转换
@@ -77,6 +85,8 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+
     public ResultApi<Boolean> deleteQuestionBank(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -130,13 +140,27 @@ public class QuestionBankController {
      * @return
      */
     @GetMapping("/get/vo")
-    public ResultApi<QuestionBankVO> getQuestionBankVOById(long id, HttpServletRequest request) {
+    public ResultApi<QuestionBankVO> getQuestionBankVOById(QuestionBankQueryRequest questionBankQueryRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(Objects.isNull(questionBankQueryRequest), ErrorCode.PARAMS_ERROR);
+        Long id = questionBankQueryRequest.getId();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
         QuestionBank questionbank = questionbankService.getById(id);
         ThrowUtils.throwIf(questionbank == null, ErrorCode.NOT_FOUND_ERROR);
+
+        QuestionBankVO questionBankVO = questionbankService.getQuestionBankVO(questionbank, request);
+
+        //是否要关联查询题库下的题目列表
+        if (questionBankQueryRequest.isNeedQueryQuestionList()) {
+            QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
+            questionQueryRequest.setQuestionBankId(id);
+            questionQueryRequest.setCurrent(1);
+            questionQueryRequest.setPageSize(1000);
+            Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
+            questionBankVO.setQuestionPage(questionPage);
+        }
         // 获取封装类
-        return ResultUtil.ok(questionbankService.getQuestionBankVO(questionbank, request));
+        return ResultUtil.ok(questionBankVO);
     }
 
     /**
@@ -210,6 +234,7 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/edit")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Boolean> editQuestionBank(@RequestBody QuestionBankEditRequest questionbankEditRequest, HttpServletRequest request) {
         if (questionbankEditRequest == null || questionbankEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);

@@ -4,6 +4,7 @@ import cn.graht.studyduck.commons.ErrorCode;
 import cn.graht.studyduck.constant.CommonConstant;
 import cn.graht.studyduck.exception.ThrowUtils;
 import cn.graht.studyduck.mapper.QuestionBankMapper;
+import cn.graht.studyduck.model.entity.Question;
 import cn.graht.studyduck.model.entity.QuestionBank;
 import cn.graht.studyduck.model.entity.User;
 import cn.graht.studyduck.model.request.questionbank.QuestionBankQueryRequest;
@@ -82,17 +83,21 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         String sortOrder = questionbankQueryRequest.getSortOrder();
         Long userId = questionbankQueryRequest.getUserId();
         String searchText1 = questionbankQueryRequest.getSearchText();
+        String description = questionbankQueryRequest.getDescription();
+        String title = questionbankQueryRequest.getTitle();
+        String picture = questionbankQueryRequest.getPicture();
         // todo 补充需要的查询条件
         // 从多字段中搜索
         if (StringUtils.isNotBlank(searchText)) {
             // 需要拼接查询条件
-            queryWrapper.and(qw -> qw.like("title", searchText).or().like("content", searchText));
+            queryWrapper.and(qw -> qw.like("title", searchText).or().like("description", searchText));
         }
         // 模糊查询
-        queryWrapper.like(StringUtils.isNotBlank(searchText1), "title", searchText1);
-        queryWrapper.like(StringUtils.isNotBlank(searchText1), "description", searchText1);
+        queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
+        queryWrapper.like(StringUtils.isNotBlank(description), "description", description);
         // 精确查询
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
+        queryWrapper.eq(StringUtils.isNotBlank(picture), "picture", picture);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
         // 排序规则
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),

@@ -1,5 +1,8 @@
 package cn.graht.studyduck.controller;
 
+import cn.graht.studyduck.model.request.questionbankquestion.QuestionBankQuestionRemoveRequest;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.graht.studyduck.annotation.AuthCheck;
 import cn.graht.studyduck.commons.ResultApi;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 /**
  * 题库题目关联表接口
@@ -76,6 +80,7 @@ public class QuestionBankQuestionController {
      * @return
      */
     @PostMapping("/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Boolean> deleteQuestionBankQuestion(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -200,5 +205,21 @@ public class QuestionBankQuestionController {
         // 获取封装类
         return ResultUtil.ok(questionbankquestionService.getQuestionBankQuestionVOPage(questionbankquestionPage, request));
     }
-
+    /**
+     * 删除题库题目关联表
+     *
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/remove")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public ResultApi<Boolean> removeQuestionBankQuestion(@RequestBody QuestionBankQuestionRemoveRequest questionBankQuestionRemoveRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(Objects.isNull(questionBankQuestionRemoveRequest),ErrorCode.PARAMS_ERROR);
+        Long questionBankId = questionBankQuestionRemoveRequest.getQuestionBankId();
+        Long questionId = questionBankQuestionRemoveRequest.getQuestionId();
+        LambdaQueryWrapper<QuestionBankQuestion> wrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class).eq(QuestionBankQuestion::getQuestionId, questionId).eq(QuestionBankQuestion::getQuestionBankId, questionBankId);
+        boolean result = questionbankquestionService.remove(wrapper);
+        return ResultUtil.ok(result);
+    }
 }

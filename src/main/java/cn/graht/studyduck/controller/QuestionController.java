@@ -1,5 +1,12 @@
 package cn.graht.studyduck.controller;
 
+import cn.graht.studyduck.model.entity.QuestionBankQuestion;
+import cn.graht.studyduck.service.QuestionBankQuestionService;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cn.graht.studyduck.annotation.AuthCheck;
 import cn.graht.studyduck.commons.ResultApi;
@@ -20,10 +27,14 @@ import cn.graht.studyduck.service.QuestionService;
 import cn.graht.studyduck.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /*
  * 题目接口
@@ -38,6 +49,8 @@ public class QuestionController {
 
     @Resource
     private QuestionService questionService;
+    @Resource
+    private QuestionBankQuestionService questionBankQuestionService;
 
     @Resource
     private UserService userService;
@@ -53,6 +66,7 @@ public class QuestionController {
  */
 
     @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(questionAddRequest == null, ErrorCode.PARAMS_ERROR);
         // todo 在此处将实体类和 request 进行转换
@@ -80,6 +94,7 @@ public class QuestionController {
  */
 
     @PostMapping("/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -129,7 +144,6 @@ public class QuestionController {
 
 /*
      * 根据 id 获取题目（封装类）
-     *
      * @param id
      * @return
  */
@@ -153,11 +167,8 @@ public class QuestionController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
-        long current = questionQueryRequest.getCurrent();
-        long size = questionQueryRequest.getPageSize();
-        // 查询数据库
-        Page<Question> questionPage = questionService.page(new Page<>(current, size),
-                questionService.getQueryWrapper(questionQueryRequest));
+        ThrowUtils.throwIf(questionQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
         return ResultUtil.ok(questionPage);
     }
 
@@ -191,6 +202,7 @@ public class QuestionController {
      * @return
  */
     @PostMapping("/my/list/page/vo")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(questionQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 补充查询条件，只查询当前登录用户的数据
@@ -215,6 +227,7 @@ public class QuestionController {
      * @return
  */
     @PostMapping("/edit")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest, HttpServletRequest request) {
         if (questionEditRequest == null || questionEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -222,6 +235,10 @@ public class QuestionController {
         // todo 在此处将实体类和 request 进行转换
         Question question = new Question();
         BeanUtils.copyProperties(questionEditRequest, question);
+        List<String> tags = questionEditRequest.getTags();
+        if (!CollectionUtils.isEmpty(tags)) {
+            question.setTags(JSONUtil.toJsonStr(tags));
+        }
         // 数据校验
         questionService.validQuestion(question, false);
         User loginUser = userService.getLoginUser(request);
@@ -239,4 +256,5 @@ public class QuestionController {
         return ResultUtil.ok(true);
     }
     // endregion
+
 }

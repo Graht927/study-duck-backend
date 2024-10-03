@@ -1,6 +1,8 @@
 package cn.graht.studyduck.model.vo;
 
+import cn.graht.studyduck.model.entity.Question;
 import cn.graht.studyduck.model.entity.QuestionBank;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -55,6 +57,10 @@ public class QuestionBankVO implements Serializable {
      * 创建用户信息
      */
     private UserVO user;
+    /**
+     * 题目列表
+     */
+    private Page<Question> questionPage;
 
     /**
      * 封装类转对象
