@@ -33,5 +33,10 @@ public class QuestionUpdateRequest implements Serializable {
      */
     private List<String> tags;
 
+    /**
+     * 推荐答案
+     */
+    private String answer;
+
     private static final long serialVersionUID = 1L;
 }

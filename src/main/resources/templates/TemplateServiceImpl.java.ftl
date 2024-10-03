@@ -8,7 +8,7 @@ import ${packageName}.commons.ErrorCode;
 import ${packageName}.constant.CommonConstant;
 import ${packageName}.exception.ThrowUtils;
 import ${packageName}.mapper.${upperDataKey}Mapper;
-import ${packageName}.model.request.${upperDataKey}QueryRequest;
+import ${packageName}.model.request.${dataKey}.${upperDataKey}QueryRequest;
 import ${packageName}.model.entity.${upperDataKey};
 import ${packageName}.model.entity.${upperDataKey}Favour;
 import ${packageName}.model.entity.${upperDataKey}Thumb;

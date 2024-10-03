@@ -38,14 +38,14 @@ public class QuestionVO implements Serializable {
     private Long userId;
 
     /**
+     * 推荐答案
+     */
+    private String answer;
+
+    /**
      * 创建时间
      */
     private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
 
     /**
      * 标签列表

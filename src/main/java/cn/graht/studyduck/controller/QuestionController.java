@@ -25,11 +25,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-/**
+/*
  * 题目接口
  *
  * @author graht
  */
+
 @RestController
 @RequestMapping("/question")
 @Slf4j
@@ -43,13 +44,14 @@ public class QuestionController {
 
     // region 增删改查
 
-    /**
+/*
      * 创建题目
      *
      * @param questionAddRequest
      * @param request
      * @return
-     */
+ */
+
     @PostMapping("/add")
     public ResultApi<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(questionAddRequest == null, ErrorCode.PARAMS_ERROR);
@@ -69,13 +71,14 @@ public class QuestionController {
         return ResultUtil.ok(newQuestionId);
     }
 
-    /**
+/*
      * 删除题目
      *
      * @param deleteRequest
      * @param request
      * @return
-     */
+ */
+
     @PostMapping("/delete")
     public ResultApi<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -87,8 +90,8 @@ public class QuestionController {
         Question oldQuestion = questionService.getById(id);
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        if (!oldQuestion.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        if (!oldQuestion.getUserId().equals(user.getId()) && !userService.isAdmin(user)) {
+            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         // 操作数据库
         boolean result = questionService.removeById(id);
@@ -96,12 +99,13 @@ public class QuestionController {
         return ResultUtil.ok(true);
     }
 
-    /**
+/*
      * 更新题目（仅管理员可用）
      *
      * @param questionUpdateRequest
      * @return
-     */
+ */
+
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Boolean> updateQuestion(@RequestBody QuestionUpdateRequest questionUpdateRequest) {
@@ -123,12 +127,13 @@ public class QuestionController {
         return ResultUtil.ok(true);
     }
 
-    /**
+/*
      * 根据 id 获取题目（封装类）
      *
      * @param id
      * @return
-     */
+ */
+
     @GetMapping("/get/vo")
     public ResultApi<QuestionVO> getQuestionVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
@@ -139,12 +144,12 @@ public class QuestionController {
         return ResultUtil.ok(questionService.getQuestionVO(question, request));
     }
 
-    /**
+/*
      * 分页获取题目列表（仅管理员可用）
      *
      * @param questionQueryRequest
      * @return
-     */
+ */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public ResultApi<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
@@ -156,13 +161,14 @@ public class QuestionController {
         return ResultUtil.ok(questionPage);
     }
 
-    /**
+/*
      * 分页获取题目列表（封装类）
      *
      * @param questionQueryRequest
      * @param request
      * @return
-     */
+ */
+
     @PostMapping("/list/page/vo")
     public ResultApi<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
                                                                HttpServletRequest request) {
@@ -177,16 +183,15 @@ public class QuestionController {
         return ResultUtil.ok(questionService.getQuestionVOPage(questionPage, request));
     }
 
-    /**
+/*
      * 分页获取当前登录用户创建的题目列表
      *
      * @param questionQueryRequest
      * @param request
      * @return
-     */
+ */
     @PostMapping("/my/list/page/vo")
-    public ResultApi<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                                 HttpServletRequest request) {
+    public ResultApi<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(questionQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 补充查询条件，只查询当前登录用户的数据
         User loginUser = userService.getLoginUser(request);
@@ -202,13 +207,13 @@ public class QuestionController {
         return ResultUtil.ok(questionService.getQuestionVOPage(questionPage, request));
     }
 
-    /**
+/*
      * 编辑题目（给用户使用）
      *
      * @param questionEditRequest
      * @param request
      * @return
-     */
+ */
     @PostMapping("/edit")
     public ResultApi<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest, HttpServletRequest request) {
         if (questionEditRequest == null || questionEditRequest.getId() <= 0) {
@@ -226,13 +231,12 @@ public class QuestionController {
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可编辑
         if (!oldQuestion.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+            throw new BusinessException(ErrorCode.NO_AUTH);
         }
         // 操作数据库
         boolean result = questionService.updateById(question);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtil.ok(true);
     }
-
     // endregion
 }

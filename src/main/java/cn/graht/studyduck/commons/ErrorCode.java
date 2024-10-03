@@ -12,6 +12,9 @@ public enum ErrorCode {
     NULL_ERROR(40002,"结果为空","请求结果为空"),
     NO_AUTH(40101,"无权限","没权限"),
     NOT_LOGIN_ERROR(40100,"未登录","用户没登录"),
+    NOT_FOUND_ERROR(40400, "请求数据不存在","请求数据为空"),
+    FORBIDDEN_ERROR(40300, "禁止访问","禁止访问"),
+    OPERATION_ERROR(50001, "操作失败","error")
     ;
     /**
      * 状态码信息

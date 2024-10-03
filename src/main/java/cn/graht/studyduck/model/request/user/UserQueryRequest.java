@@ -24,7 +24,7 @@ public class UserQueryRequest extends PageRequest implements Serializable {
     /**
      * id
      */
-    private Long notId;
+    private Long unionId;
 
     /**
      * 搜索词

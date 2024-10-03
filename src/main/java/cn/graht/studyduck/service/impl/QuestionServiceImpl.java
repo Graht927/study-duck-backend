@@ -8,10 +8,8 @@ import cn.graht.studyduck.commons.ErrorCode;
 import cn.graht.studyduck.constant.CommonConstant;
 import cn.graht.studyduck.exception.ThrowUtils;
 import cn.graht.studyduck.mapper.QuestionMapper;
-import cn.graht.studyduck.model.request.QuestionQueryRequest;
+import cn.graht.studyduck.model.request.question.QuestionQueryRequest;
 import cn.graht.studyduck.model.entity.Question;
-import cn.graht.studyduck.model.entity.QuestionFavour;
-import cn.graht.studyduck.model.entity.QuestionThumb;
 import cn.graht.studyduck.model.entity.User;
 import cn.graht.studyduck.model.vo.QuestionVO;
 import cn.graht.studyduck.model.vo.UserVO;
@@ -25,17 +23,17 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
+/*
  * 题目服务实现
  *
  * @author graht
  */
+
 @Service
 @Slf4j
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
@@ -43,12 +41,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Resource
     private UserService userService;
 
-    /**
+/*
      * 校验数据
      *
      * @param question
      * @param add      对创建的数据进行校验
-     */
+*/
+
     @Override
     public void validQuestion(Question question, boolean add) {
         ThrowUtils.throwIf(question == null, ErrorCode.PARAMS_ERROR);
@@ -66,12 +65,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
     }
 
-    /**
+/*
      * 获取查询条件
      *
      * @param questionQueryRequest
      * @return
-     */
+ */
+
     @Override
     public QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest) {
         QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
@@ -88,6 +88,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         String sortOrder = questionQueryRequest.getSortOrder();
         List<String> tagList = questionQueryRequest.getTags();
         Long userId = questionQueryRequest.getUserId();
+        String answer = questionQueryRequest.getAnswer();
         // todo 补充需要的查询条件
         // 从多字段中搜索
         if (StringUtils.isNotBlank(searchText)) {
@@ -97,6 +98,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         // 模糊查询
         queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
         queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
+        queryWrapper.like(StringUtils.isNotBlank(answer), "answer", answer);
         // JSON 数组查询
         if (CollUtil.isNotEmpty(tagList)) {
             for (String tag : tagList) {
@@ -114,13 +116,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         return queryWrapper;
     }
 
-    /**
+/*
      * 获取题目封装
      *
      * @param question
      * @param request
      * @return
-     */
+ */
+
     @Override
     public QuestionVO getQuestionVO(Question question, HttpServletRequest request) {
         // 对象转封装类
@@ -137,7 +140,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         UserVO userVO = userService.getUserVO(user);
         questionVO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
-        long questionId = question.getId();
+        /*long questionId = question.getId();
         User loginUser = userService.getLoginUserPermitNull(request);
         if (loginUser != null) {
             // 获取点赞
@@ -152,19 +155,20 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             questionFavourQueryWrapper.eq("userId", loginUser.getId());
             QuestionFavour questionFavour = questionFavourMapper.selectOne(questionFavourQueryWrapper);
             questionVO.setHasFavour(questionFavour != null);
-        }
+        }*/
         // endregion
 
         return questionVO;
     }
 
-    /**
+/*
      * 分页获取题目封装
      *
      * @param questionPage
      * @param request
      * @return
-     */
+ */
+
     @Override
     public Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request) {
         List<Question> questionList = questionPage.getRecords();
@@ -183,7 +187,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         Set<Long> userIdSet = questionList.stream().map(Question::getUserId).collect(Collectors.toSet());
         Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
                 .collect(Collectors.groupingBy(User::getId));
-        // 2. 已登录，获取用户点赞、收藏状态
+        /*// 2. 已登录，获取用户点赞、收藏状态
         Map<Long, Boolean> questionIdHasThumbMap = new HashMap<>();
         Map<Long, Boolean> questionIdHasFavourMap = new HashMap<>();
         User loginUser = userService.getLoginUserPermitNull(request);
@@ -202,7 +206,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             questionFavourQueryWrapper.eq("userId", loginUser.getId());
             List<QuestionFavour> questionFavourList = questionFavourMapper.selectList(questionFavourQueryWrapper);
             questionFavourList.forEach(questionFavour -> questionIdHasFavourMap.put(questionFavour.getQuestionId(), true));
-        }
+        }*/
         // 填充信息
         questionVOList.forEach(questionVO -> {
             Long userId = questionVO.getUserId();
@@ -211,8 +215,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                 user = userIdUserListMap.get(userId).get(0);
             }
             questionVO.setUser(userService.getUserVO(user));
-            questionVO.setHasThumb(questionIdHasThumbMap.getOrDefault(questionVO.getId(), false));
-            questionVO.setHasFavour(questionIdHasFavourMap.getOrDefault(questionVO.getId(), false));
+           /* questionVO.setHasThumb(questionIdHasThumbMap.getOrDefault(questionVO.getId(), false));
+            questionVO.setHasFavour(questionIdHasFavourMap.getOrDefault(questionVO.getId(), false));*/
         });
         // endregion
 
