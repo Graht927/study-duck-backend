@@ -1,35 +1,29 @@
 package cn.graht.studyduck.service.impl;
 
-import cn.graht.studyduck.annotation.AuthCheck;
-import cn.graht.studyduck.commons.ResultApi;
-import cn.graht.studyduck.commons.ResultUtil;
-import cn.graht.studyduck.constant.UserConstant;
+import cn.graht.studyduck.commons.ErrorCode;
+import cn.graht.studyduck.constant.CommonConstant;
+import cn.graht.studyduck.exception.ThrowUtils;
+import cn.graht.studyduck.mapper.QuestionBankQuestionMapper;
+import cn.graht.studyduck.mapper.QuestionMapper;
+import cn.graht.studyduck.model.entity.Question;
 import cn.graht.studyduck.model.entity.QuestionBankQuestion;
-import cn.graht.studyduck.service.QuestionBankQuestionService;
+import cn.graht.studyduck.model.entity.User;
+import cn.graht.studyduck.model.request.question.QuestionQueryRequest;
+import cn.graht.studyduck.model.vo.QuestionVO;
+import cn.graht.studyduck.model.vo.UserVO;
+import cn.graht.studyduck.service.QuestionService;
+import cn.graht.studyduck.service.UserService;
+import cn.graht.studyduck.utils.SqlUtils;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import cn.graht.studyduck.commons.ErrorCode;
-import cn.graht.studyduck.constant.CommonConstant;
-import cn.graht.studyduck.exception.ThrowUtils;
-import cn.graht.studyduck.mapper.QuestionMapper;
-import cn.graht.studyduck.model.request.question.QuestionQueryRequest;
-import cn.graht.studyduck.model.entity.Question;
-import cn.graht.studyduck.model.entity.User;
-import cn.graht.studyduck.model.vo.QuestionVO;
-import cn.graht.studyduck.model.vo.UserVO;
-import cn.graht.studyduck.service.QuestionService;
-import cn.graht.studyduck.service.UserService;
-import cn.graht.studyduck.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +46,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Resource
     private UserService userService;
     @Resource
-    private QuestionBankQuestionService questionBankQuestionService;
+    private QuestionBankQuestionMapper questionBankQuestionMapper;
 
 /*
      * 校验数据
@@ -250,7 +244,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         QueryWrapper<Question> queryWrapper = getQueryWrapper(questionQueryRequest);
         if (!Objects.isNull(questionBankId)){
             LambdaQueryWrapper<QuestionBankQuestion> wrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class).select(QuestionBankQuestion::getQuestionId).eq(QuestionBankQuestion::getQuestionBankId, questionBankId);
-            List<QuestionBankQuestion> list = questionBankQuestionService.list(wrapper);
+            List<QuestionBankQuestion> list = questionBankQuestionMapper.selectList(wrapper);
             if (CollUtil.isNotEmpty(list)){
                 Set<Long> questionIdSet = list.stream().map(QuestionBankQuestion::getQuestionId).collect(Collectors.toSet());
                 queryWrapper.in("id",questionIdSet);

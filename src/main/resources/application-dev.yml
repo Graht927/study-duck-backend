@@ -17,6 +17,6 @@ spring:
         max-active: 20
         min-idle: 4
         max-idle: 10
-    host: xxxx
+    host: 121.40.231.89
     port: 6379
-    password: xxxx
+    password: graht

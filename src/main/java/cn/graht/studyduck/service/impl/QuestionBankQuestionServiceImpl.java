@@ -1,5 +1,6 @@
 package cn.graht.studyduck.service.impl;
 
+import cn.graht.studyduck.annotation.AuthCheck;
 import cn.graht.studyduck.commons.ErrorCode;
 import cn.graht.studyduck.constant.CommonConstant;
 import cn.graht.studyduck.exception.ThrowUtils;
@@ -24,6 +25,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
